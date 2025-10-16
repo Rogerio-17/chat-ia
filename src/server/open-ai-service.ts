@@ -42,7 +42,11 @@ export async function SendOpenAi({
       });
     }
 
-    console.log("Sending to OpenAI via Vercel API route:", { message, imageUrl, content });
+    console.log("Sending to OpenAI via Vercel API route:", {
+      message,
+      imageUrl,
+      content,
+    });
 
     // Chama a API route da Vercel (/api/openai.ts)
     const response = await fetch("/api/openai", {
