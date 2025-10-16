@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/openai.ts": {
+      "runtime": "@vercel/node@latest"
+    }
+  },
+  "env": {
+    "OPENAI_API_KEY": "@openai_api_key"
+  }
+}

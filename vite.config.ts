@@ -11,16 +11,4 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    proxy: {
-      "/api/openai": {
-        target: "https://api.openai.com/v1/chat/completions",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/openai/, ""),
-        headers: {
-          Authorization: `Bearer ${process.env.VITE_OPENAI_API_KEY}`,
-        },
-      },
-    },
-  },
 });
