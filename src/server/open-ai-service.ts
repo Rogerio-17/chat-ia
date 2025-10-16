@@ -42,33 +42,81 @@ export async function SendOpenAi({
       });
     }
 
-    console.log("Sending to OpenAI via Vercel API route:", {
-      message,
-      imageUrl,
-      content,
-    });
+    // Detecta se está em desenvolvimento ou produção
+    const isDevelopment = import.meta.env.DEV;
 
-    // Chama a API route da Vercel (/api/openai.ts)
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "user",
-            content: content,
+    console.log(
+      `Sending to OpenAI (${isDevelopment ? "development" : "production"}):`,
+      {
+        message,
+        imageUrl,
+        content,
+      }
+    );
+
+    const requestBody = {
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "user",
+          content: content,
+        },
+      ],
+      max_tokens: 1000,
+    };
+
+    let response: Response;
+
+    if (isDevelopment) {
+      // Em desenvolvimento: tenta primeiro o proxy, se falhar usa requisição direta
+      try {
+        response = await fetch("/api/openai", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        ],
-        max_tokens: 1000,
-      }),
-    });
+          body: JSON.stringify(requestBody),
+        });
+
+        // Se o proxy retornar 401 (sem auth), faz requisição direta
+        if (response.status === 401) {
+          console.log("Proxy falhou, tentando requisição direta...");
+          throw new Error("Proxy sem auth, tentando direta");
+        }
+      } catch (proxyError) {
+        console.log("Proxy falhou, fazendo requisição direta para OpenAI");
+
+        // Fallback: requisição direta para OpenAI
+        const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+        if (!apiKey) {
+          throw new Error(
+            "VITE_OPENAI_API_KEY não configurada no arquivo .env"
+          );
+        }
+
+        response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+      }
+    } else {
+      // Em produção: usa a API route da Vercel
+      response = await fetch("/api/openai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+    }
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error("Vercel API Error:", errorData);
+      console.error("API Error:", errorData);
       throw new Error(`Erro OpenAI: ${response.status} - ${errorData}`);
     }
 
