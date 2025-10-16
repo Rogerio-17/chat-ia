@@ -42,9 +42,9 @@ export async function SendOpenAi({
       });
     }
 
-    console.log("Sending to OpenAI via proxy:", { message, imageUrl, content });
+    console.log("Sending to OpenAI via Vercel API route:", { message, imageUrl, content });
 
-    // Chama OpenAI via proxy do Vite para evitar CORS
+    // Chama a API route da Vercel (/api/openai.ts)
     const response = await fetch("/api/openai", {
       method: "POST",
       headers: {
@@ -64,7 +64,7 @@ export async function SendOpenAi({
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error("OpenAI API Error:", errorData);
+      console.error("Vercel API Error:", errorData);
       throw new Error(`Erro OpenAI: ${response.status} - ${errorData}`);
     }
 
