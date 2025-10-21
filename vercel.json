@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/openai.ts": {
-      "runtime": "nodejs20.x"
+      "runtime": "@vercel/node@latest"
     }
   }
 }
