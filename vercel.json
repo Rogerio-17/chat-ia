@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/openai.ts": {
-      "runtime": "@vercel/node@latest"
-    }
-  }
-}
