@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Input } from "./ui/input";
@@ -28,6 +31,16 @@ interface ChatSidebarProps {
   onOpenChange?: (open: boolean) => void;
 }
 
+// Schema de validação com Zod
+const conversationSchema = z.object({
+  title: z
+    .string()
+    .min(1, "O título é obrigatório")
+    .max(100, "Título muito longo"),
+});
+
+type ConversationFormData = z.infer<typeof conversationSchema>;
+
 export function ChatSidebar({
   chats,
   currentChatId,
@@ -37,24 +50,39 @@ export function ChatSidebar({
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [conversationTitle, setConversationTitle] = useState("");
   const { createWindow, userLogged, deleteWindow } = useConversations();
 
-  const handleCreateConversation = async () => {
-    if (conversationTitle.trim()) {
-      const { windowId } = await createWindow(conversationTitle);
+  // Configuração do React Hook Form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ConversationFormData>({
+    resolver: zodResolver(conversationSchema),
+    defaultValues: {
+      title: "",
+    },
+  });
+
+  const onSubmit = async (data: ConversationFormData) => {
+    try {
+      const { windowId } = await createWindow(data.title.trim());
       navigate(`/chat/${windowId}`);
       setIsModalOpen(false);
-      setConversationTitle("");
+      reset();
       if (isMobile && onOpenChange) {
         onOpenChange(false);
       }
+    } catch (error) {
+      console.error("Erro ao criar conversa:", error);
+      // O erro já é tratado no hook useConversations
     }
   };
 
   const handleCancelConversation = () => {
     setIsModalOpen(false);
-    setConversationTitle("");
+    reset();
   };
 
   const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
@@ -78,7 +106,7 @@ export function ChatSidebar({
   const SidebarContent = () => (
     <div className="bg-gray-900 text-white h-full flex flex-col">
       {/* Header */}
-      <div className="p-4">
+      <div className="mt-8 md:mt-0 p-4">
         <Button
           className="w-full bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 rounded-lg"
           onClick={() => setIsModalOpen(true)}
@@ -143,66 +171,95 @@ export function ChatSidebar({
 
       {/* Footer */}
       <div className="p-4 flex justify-between border-t border-gray-700">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+        <div className="flex items-center space-x-2 flex-1 min-w-0">
+          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-sm font-medium">
               {userLogged?.displayName?.charAt(0).toUpperCase()}
             </span>
           </div>
-          <span className="text-sm">
+          <span className="text-sm truncate">
             {userLogged?.displayName?.split(" ")[0]}
           </span>
         </div>
 
-        <Button onClick={handleLogout}>
-          <CgLogOut size={28} />
+        <Button
+          onClick={handleLogout}
+          size="sm"
+          variant="ghost"
+          className="flex-shrink-0 ml-2"
+        >
+          <CgLogOut size={20} />
         </Button>
       </div>
 
       {/* Modal para criar nova conversa */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className={`${
+            isMobile ? "w-[95vw] max-w-[400px]" : "sm:max-w-[425px]"
+          }`}
+        >
           <DialogHeader>
             <DialogTitle>Nova Conversa</DialogTitle>
             <DialogDescription>
               Digite um título para sua nova conversa.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="title" className="text-right">
-                Título
-              </label>
-              <Input
-                id="title"
-                value={conversationTitle}
-                onChange={(e) => setConversationTitle(e.target.value)}
-                className="col-span-3"
-                placeholder="Ex: Análise de documentos"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleCreateConversation();
-                  }
-                }}
-              />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="grid gap-4 py-4">
+              <div
+                className={`grid ${
+                  isMobile ? "grid-cols-1 gap-2" : "grid-cols-4 gap-4"
+                } items-center`}
+              >
+                {!isMobile && (
+                  <label htmlFor="title" className="text-right">
+                    Título
+                  </label>
+                )}
+                <div className={isMobile ? "col-span-1" : "col-span-3"}>
+                  <Input
+                    id="title"
+                    {...register("title")}
+                    placeholder="Ex: Análise de documentos"
+                    className={errors.title ? "border-red-500" : ""}
+                  />
+                  {errors.title && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.title.message}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancelConversation}
+            <DialogFooter
+              className={`${isMobile ? "flex-col-reverse gap-2" : ""}`}
             >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              onClick={handleCreateConversation}
-              disabled={!conversationTitle.trim()}
-            >
-              Criar
-            </Button>
-          </DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancelConversation}
+                disabled={isSubmitting}
+                className={isMobile ? "w-full" : ""}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className={isMobile ? "w-full" : ""}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Criando...
+                  </div>
+                ) : (
+                  "Criar"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

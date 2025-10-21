@@ -147,33 +147,37 @@ export function ChatArea({
   if (!chatId || chatId === "new") {
     return (
       <div className="flex-1 flex flex-col h-full bg-white overflow-hidden overflow-x-hidden">
-        {/* Header Mobile */}
+        {/* Header Mobile - Melhorado */}
         {isMobile && (
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white shrink-0">
+          <div className="flex items-center p-4 border-b border-gray-200 bg-white shrink-0">
             <Button
               variant="ghost"
               size="sm"
               onClick={onMenuClick}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 mr-auto"
             >
               <MdMenu size={20} />
-              <span className="text-sm font-medium">Conversas</span>
+              <span className="text-sm font-medium">Menu</span>
             </Button>
-            <h1 className="text-lg font-semibold text-gray-900">Novo Chat</h1>
-            <div className="w-10"></div>{" "}
-            {/* Spacer para centralizar o título */}
+            <h1 className="text-lg font-semibold text-gray-900 absolute left-1/2 transform -translate-x-1/2">
+              Novo Chat
+            </h1>
           </div>
         )}
 
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
+          <div className="text-center px-4">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🤖</span>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2
+              className={`${
+                isMobile ? "text-lg" : "text-xl"
+              } font-semibold text-gray-900 mb-2`}
+            >
               Como posso ajudar você hoje?
             </h2>
-            <p className="text-gray-600">
+            <p className={`text-gray-600 ${isMobile ? "text-sm" : ""}`}>
               Selecione uma conversa ou inicie uma nova
             </p>
           </div>
@@ -181,7 +185,7 @@ export function ChatArea({
 
         {/* Input area */}
         <div className="border-t bg-white p-4 shrink-0">
-          <div className={`max-w-3xl mx-auto ${isMobile ? "px-2" : ""}`}>
+          <div className={`max-w-3xl mx-auto ${isMobile ? "px-0" : ""}`}>
             {/* Preview da imagem */}
             {imagePreview && (
               <div
@@ -239,7 +243,7 @@ export function ChatArea({
                   }
                   rows={1}
                   className={`resize-none min-h-[52px] max-h-32 ${
-                    isMobile ? "rounded-lg" : "rounded-xl"
+                    isMobile ? "rounded-lg text-base" : "rounded-xl"
                   } border-gray-300 focus:border-gray-400 focus:ring-0 pr-12`}
                   onKeyDown={handleKeyDown}
                   disabled={loadingAiResponse || !chatId}
@@ -297,20 +301,21 @@ export function ChatArea({
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
-      {/* Header Mobile */}
+      {/* Header Mobile - Melhorado */}
       {isMobile && (
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white shrink-0">
+        <div className="flex items-center p-4 border-b border-gray-200 bg-white shrink-0">
           <Button
             variant="ghost"
             size="sm"
             onClick={onMenuClick}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 mr-auto"
           >
             <MdMenu size={20} />
-            <span className="text-sm font-medium">Conversas</span>
+            <span className="text-sm font-medium">Menu</span>
           </Button>
-          <h1 className="text-lg font-semibold text-gray-900">Chat</h1>
-          <div className="w-10"></div> {/* Spacer para centralizar o título */}
+          <h1 className="text-lg font-semibold text-gray-900 absolute left-1/2 transform -translate-x-1/2">
+            Chat
+          </h1>
         </div>
       )}
 
@@ -344,10 +349,18 @@ export function ChatArea({
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium mb-1">
+                <div
+                  className={`${
+                    isMobile ? "text-sm" : "text-sm"
+                  } font-medium mb-1`}
+                >
                   {message.type === "user" ? "Você" : "IA"}
                 </div>
-                <div className="text-gray-900 leading-relaxed whitespace-pre-wrap">
+                <div
+                  className={`text-gray-900 leading-relaxed whitespace-pre-wrap ${
+                    isMobile ? "text-sm" : ""
+                  }`}
+                >
                   {formatApiResponse(message.content, isMobile)}
                 </div>
                 <div className="text-xs text-gray-500 mt-2">
@@ -374,7 +387,13 @@ export function ChatArea({
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium mb-1">ChatGPT</div>
+                <div
+                  className={`${
+                    isMobile ? "text-sm" : "text-sm"
+                  } font-medium mb-1`}
+                >
+                  ChatGPT
+                </div>
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                   <div
@@ -455,7 +474,7 @@ export function ChatArea({
                 }
                 rows={1}
                 className={`resize-none min-h-[52px] max-h-32 ${
-                  isMobile ? "rounded-lg" : "rounded-xl"
+                  isMobile ? "rounded-lg text-base" : "rounded-xl"
                 } border-gray-300 focus:border-gray-400 focus:ring-0 pr-12`}
                 onKeyDown={handleKeyDown}
               />
