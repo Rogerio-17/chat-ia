@@ -29,6 +29,8 @@ interface ChatSidebarProps {
   currentChatId?: string;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  isModalOpen?: boolean;
+  onModalOpenChange?: (open: boolean) => void;
 }
 
 // Schema de validação com Zod
@@ -46,11 +48,17 @@ export function ChatSidebar({
   currentChatId,
   isOpen,
   onOpenChange,
+  isModalOpen: externalIsModalOpen,
+  onModalOpenChange,
 }: ChatSidebarProps) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
   const { createWindow, userLogged, deleteWindow } = useConversations();
+
+  // Usar o estado externo se fornecido, caso contrário usar o interno
+  const isModalOpen = externalIsModalOpen ?? internalIsModalOpen;
+  const setIsModalOpen = onModalOpenChange ?? setInternalIsModalOpen;
 
   // Configuração do React Hook Form
   const {

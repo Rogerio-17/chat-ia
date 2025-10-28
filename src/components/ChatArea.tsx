@@ -15,6 +15,7 @@ interface ChatAreaProps {
   chatId?: string;
   messages?: ConversationMessage[];
   onMenuClick?: () => void;
+  onNewChatClick?: () => void;
 }
 
 // Schema de validação com Zod
@@ -28,6 +29,7 @@ export function ChatArea({
   chatId,
   messages = [],
   onMenuClick,
+  onNewChatClick,
 }: ChatAreaProps) {
   let imageUrlUploaded = "";
   const isMobile = useIsMobile();
@@ -153,19 +155,22 @@ export function ChatArea({
       >
         {/* Header Mobile - Melhorado */}
         {isMobile && (
-          <div className="flex items-center p-4 border-b border-gray-200 bg-white shrink-0 fixed top-0 left-0 right-0 z-10">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white shrink-0 fixed top-0 left-0 right-0 z-10">
             <Button
               variant="ghost"
               size="sm"
               onClick={onMenuClick}
-              className="flex items-center gap-2 mr-auto"
+              className="flex items-center gap-1 p-2"
             >
               <MdMenu size={20} />
-              <span className="text-sm font-medium">Menu</span>
             </Button>
-            <h1 className="text-lg font-semibold text-gray-900 absolute left-1/2 transform -translate-x-1/2">
-              Novo Chat
-            </h1>
+            <Button
+              size="sm"
+              className="bg-gray-800 hover:bg-gray-700 text-white text-xs px-2"
+              onClick={onNewChatClick}
+            >
+              + Nova conversa
+            </Button>
           </div>
         )}
 
@@ -319,19 +324,23 @@ export function ChatArea({
     >
       {/* Header Mobile - Melhorado */}
       {isMobile && (
-        <div className="flex items-center p-4 border-b border-gray-200 bg-white shrink-0 fixed top-0 left-0 right-0 z-10">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white shrink-0 fixed top-0 left-0 right-0 z-10">
           <Button
             variant="ghost"
             size="sm"
             onClick={onMenuClick}
-            className="flex items-center gap-2 mr-auto"
+            className="flex items-center gap-1 p-2"
           >
             <MdMenu size={20} />
-            <span className="text-sm font-medium">Menu</span>
           </Button>
-          <h1 className="text-lg font-semibold text-gray-900 absolute left-1/2 transform -translate-x-1/2">
-            Chat
-          </h1>
+          <h1 className="text-lg font-semibold text-gray-900 ">Chat</h1>
+          <Button
+            size="sm"
+            className="bg-gray-800 hover:bg-gray-700 text-white text-xs px-2"
+            onClick={onNewChatClick}
+          >
+            + Nova conversa
+          </Button>
         </div>
       )}
 

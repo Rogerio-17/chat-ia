@@ -3,9 +3,12 @@ import { ChatArea } from "../components/ChatArea";
 import { useConversations } from "@/hooks/use-conversation";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const isMobile = useIsMobile();
   const { getAllWindows, windows, userLogged } = useConversations();
   const navigate = useNavigate();
 
@@ -30,9 +33,19 @@ export function HomePage() {
         chats={orderWindows}
         isOpen={sidebarOpen}
         onOpenChange={setSidebarOpen}
+        isModalOpen={isModalOpen}
+        onModalOpenChange={setIsModalOpen}
       />
       <div className="flex-1 flex flex-col min-w-0">
-        <ChatArea onMenuClick={() => setSidebarOpen(true)} />
+        <ChatArea
+          onMenuClick={() => setSidebarOpen(true)}
+          onNewChatClick={() => {
+            setIsModalOpen(true);
+            if (isMobile) {
+              setSidebarOpen(true);
+            }
+          }}
+        />
       </div>
     </div>
   );
