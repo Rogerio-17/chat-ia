@@ -146,10 +146,14 @@ export function ChatArea({
 
   if (!chatId || chatId === "new") {
     return (
-      <div className="flex-1 flex flex-col h-full bg-white overflow-hidden overflow-x-hidden">
+      <div
+        className={`flex-1 flex flex-col ${
+          isMobile ? "h-screen" : "h-full"
+        } bg-white overflow-hidden overflow-x-hidden`}
+      >
         {/* Header Mobile - Melhorado */}
         {isMobile && (
-          <div className="flex items-center p-4 border-b border-gray-200 bg-white shrink-0">
+          <div className="flex items-center p-4 border-b border-gray-200 bg-white shrink-0 fixed top-0 left-0 right-0 z-10">
             <Button
               variant="ghost"
               size="sm"
@@ -165,7 +169,11 @@ export function ChatArea({
           </div>
         )}
 
-        <div className="flex-1 flex items-center justify-center">
+        <div
+          className={`flex-1 flex items-center justify-center ${
+            isMobile ? "pt-16 pb-32" : ""
+          }`}
+        >
           <div className="text-center px-4">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🤖</span>
@@ -184,7 +192,11 @@ export function ChatArea({
         </div>
 
         {/* Input area */}
-        <div className="border-t bg-white p-4 shrink-0">
+        <div
+          className={`border-t bg-white p-4 shrink-0 ${
+            isMobile ? "fixed bottom-0 left-0 right-0 z-10" : ""
+          }`}
+        >
           <div className={`max-w-3xl mx-auto ${isMobile ? "px-0" : ""}`}>
             {/* Preview da imagem */}
             {imagePreview && (
@@ -300,10 +312,14 @@ export function ChatArea({
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
+    <div
+      className={`flex-1 flex flex-col ${
+        isMobile ? "h-screen" : "h-full"
+      } bg-white overflow-hidden`}
+    >
       {/* Header Mobile - Melhorado */}
       {isMobile && (
-        <div className="flex items-center p-4 border-b border-gray-200 bg-white shrink-0">
+        <div className="flex items-center p-4 border-b border-gray-200 bg-white shrink-0 fixed top-0 left-0 right-0 z-10">
           <Button
             variant="ghost"
             size="sm"
@@ -320,10 +336,14 @@ export function ChatArea({
       )}
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto min-h-0">
+      <div
+        className={`flex-1 overflow-y-auto min-h-0 ${
+          isMobile ? "pt-16 pb-26" : ""
+        }`}
+      >
         <div
           className={`max-w-3xl mx-auto space-y-6 ${
-            isMobile ? "p-3 pb-6" : "p-4 pb-6"
+            isMobile ? "p-3 pb-0" : "p-4 pb-3"
           }`}
         >
           {messages.map((message) => (
@@ -415,7 +435,11 @@ export function ChatArea({
       </div>
 
       {/* Input area */}
-      <div className="border-t bg-white p-4 shrink-0">
+      <div
+        className={`border-t bg-white p-4 shrink-0 ${
+          isMobile ? "fixed bottom-0 left-0 right-0 z-10" : ""
+        }`}
+      >
         <div className="max-w-3xl mx-auto">
           {/* Preview da imagem */}
           {imagePreview && (
