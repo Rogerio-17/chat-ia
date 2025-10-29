@@ -36,6 +36,7 @@ export function ChatArea({
   const isMobile = useIsMobile();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,12 +94,15 @@ export function ChatArea({
 
   // Função para processar o envio do formulário
   const onSubmit = async (data: MessageFormData) => {
+    setLoading(true);
     if (!chatId) {
+      setLoading(false);
       toast.error("Selecione uma conversa ou crie uma nova.");
       return;
     }
 
     if (!data.message.trim() && !selectedImage) {
+      setLoading(false);
       return;
     }
 
@@ -133,8 +137,11 @@ export function ChatArea({
         { message: messageContent, imageUrl: imageUrlUploaded },
         chatId
       );
+
+      setLoading(false);
     } catch (error) {
       toast.error("Erro ao enviar mensagem. Tente novamente.");
+      setLoading(false);
     }
   };
 
@@ -263,7 +270,7 @@ export function ChatArea({
                     isMobile ? "rounded-lg text-base" : "rounded-xl"
                   } border-gray-300 focus:border-gray-400 focus:ring-0 pr-12`}
                   onKeyDown={handleKeyDown}
-                  disabled={loadingAiResponse || !chatId}
+                  disabled={loadingAiResponse || !chatId || loading}
                 />
                 {/* Botão de anexo */}
                 <Button
@@ -272,7 +279,7 @@ export function ChatArea({
                   variant="ghost"
                   className="absolute right-2 bottom-2 w-8 h-8 p-0 text-gray-400 hover:text-gray-600"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={loadingAiResponse || !chatId}
+                  disabled={loadingAiResponse || !chatId || loading}
                 >
                   <MdAttachFile size={16} />
                 </Button>
@@ -284,10 +291,12 @@ export function ChatArea({
                   isMobile ? "rounded-lg" : "rounded-xl"
                 }`}
                 disabled={
-                  (!messageValue?.trim() && !selectedImage) || loadingAiResponse
+                  (!messageValue?.trim() && !selectedImage) ||
+                  loadingAiResponse ||
+                  loading
                 }
               >
-                {loadingAiResponse ? (
+                {loadingAiResponse || loading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <svg
@@ -400,43 +409,44 @@ export function ChatArea({
           ))}
 
           {/* Loading indicator */}
-          {loadingAiResponse && (
-            <div className={`flex ${isMobile ? "gap-3" : "gap-4"}`}>
-              <div
-                className={`${
-                  isMobile ? "w-7 h-7" : "w-8 h-8"
-                } bg-green-600 rounded-full flex items-center justify-center flex-shrink-0`}
-              >
-                <span
-                  className={`text-white ${
-                    isMobile ? "text-xs" : "text-sm"
-                  } font-medium`}
-                >
-                  AI
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
+          {loadingAiResponse ||
+            (loading && (
+              <div className={`flex ${isMobile ? "gap-3" : "gap-4"}`}>
                 <div
                   className={`${
-                    isMobile ? "text-sm" : "text-sm"
-                  } font-medium mb-1`}
+                    isMobile ? "w-7 h-7" : "w-8 h-8"
+                  } bg-green-600 rounded-full flex items-center justify-center flex-shrink-0`}
                 >
-                  ChatGPT
+                  <span
+                    className={`text-white ${
+                      isMobile ? "text-xs" : "text-sm"
+                    } font-medium`}
+                  >
+                    AI
+                  </span>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div className="flex-1 min-w-0">
                   <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
+                    className={`${
+                      isMobile ? "text-sm" : "text-sm"
+                    } font-medium mb-1`}
+                  >
+                    ChatGPT
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            ))}
 
           {/* Elemento invisível para servir como âncora do scroll */}
           <div ref={messagesEndRef} />
@@ -529,10 +539,12 @@ export function ChatArea({
                 isMobile ? "rounded-lg" : "rounded-xl"
               }`}
               disabled={
-                (!messageValue?.trim() && !selectedImage) || loadingAiResponse
+                (!messageValue?.trim() && !selectedImage) ||
+                loadingAiResponse ||
+                loading
               }
             >
-              {loadingAiResponse ? (
+              {loadingAiResponse || loading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <svg
