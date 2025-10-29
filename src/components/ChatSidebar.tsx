@@ -23,6 +23,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { formatDate } from "@/utils/format-date";
 import type { Window } from "@/server/firebase-services";
 import { auth } from "@/server/firebase-client";
+import { toast } from "react-toastify";
 
 interface ChatSidebarProps {
   chats: Window[];
@@ -104,10 +105,10 @@ export function ChatSidebar({
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      alert("Você saiu do sistema.");
+      toast.success("Você saiu do sistema.");
       navigate("/login");
     } catch (error) {
-      alert("Erro ao sair. Tente novamente.");
+      toast.error("Erro ao sair. Tente novamente.");
     }
   };
 
@@ -166,7 +167,11 @@ export function ChatSidebar({
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6 text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                  className={`p-1 h-6 w-6 text-gray-400 hover:text-red-400 hover:bg-red-500/10 ${
+                    isMobile
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  } transition-opacity`}
                   onClick={(e) => handleDeleteChat(chat.id, e)}
                 >
                   <MdDelete size={12} />

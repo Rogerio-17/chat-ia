@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import type { ConversationMessage } from "@/server/firebase-services";
 import { formatDate } from "@/utils/format-date";
 import { formatApiResponse } from "@/utils/formatApiResponse";
+import { toast } from "react-toastify";
 
 interface ChatAreaProps {
   chatId?: string;
@@ -93,7 +94,7 @@ export function ChatArea({
   // Função para processar o envio do formulário
   const onSubmit = async (data: MessageFormData) => {
     if (!chatId) {
-      alert("Selecione uma conversa ou crie uma nova.");
+      toast.error("Selecione uma conversa ou crie uma nova.");
       return;
     }
 
@@ -133,8 +134,7 @@ export function ChatArea({
         chatId
       );
     } catch (error) {
-      console.error("Erro no envio da mensagem:", error);
-      alert("Erro ao enviar mensagem. Tente novamente.");
+      toast.error("Erro ao enviar mensagem. Tente novamente.");
     }
   };
 

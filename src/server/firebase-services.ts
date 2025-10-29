@@ -11,6 +11,7 @@ import {
 import { v4 as uuidV4 } from "uuid";
 import { api, storage } from "./firebase-client";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { toast } from "react-toastify";
 
 export interface ConversationMessageRequest {
   windowId: string;
@@ -54,9 +55,10 @@ export async function CreateWindow({
 
   try {
     await setDoc(doc(collection(api, "windows"), id), newWindow);
+    toast.success("Nova conversa criada com sucesso.");
     return { window: { ...newWindow, id } };
   } catch (error) {
-    console.error("Error saving conversation history: ", error);
+    toast.error("Erro ao criar nova conversa. Tente novamente.");
     throw new Error("Failed to save conversation history");
   }
 }

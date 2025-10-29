@@ -2,6 +2,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { Button } from "../components/ui/button";
 import { auth } from "@/server/firebase-client";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -10,10 +11,10 @@ export function LoginPage() {
   async function handleGoogleLogin() {
     try {
       await signInWithPopup(auth, provider);
-      alert("Login realizado com sucesso!");
+      toast.success("Login realizado com sucesso!");
       navigate("/"); // Redireciona para a página inicial após o login
     } catch (error) {
-      alert("Erro ao realizar login. Tente novamente.");
+      toast.error("Erro ao realizar login. Tente novamente.");
     }
   }
 

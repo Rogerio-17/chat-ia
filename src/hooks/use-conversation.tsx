@@ -21,6 +21,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { toast } from "react-toastify";
 
 interface ConversationsContextProps {
   fetchConversationByWindowId: (windowId: string) => Promise<void>;
@@ -90,7 +91,7 @@ export const ConversationsProvider = ({
 
       return { windowId: window.id };
     } catch (error) {
-      alert("Erro ao criar nova conversa. Tente novamente.");
+      toast.error("Erro ao criar nova conversa. Tente novamente.");
       throw error;
     }
   }
@@ -99,10 +100,9 @@ export const ConversationsProvider = ({
     try {
       await DeleteWindow(windowId);
       setWindows((prev) => prev.filter((window) => window.id !== windowId));
-      alert("Conversa excluída com sucesso.");
+      toast.success("Conversa excluída com sucesso.");
     } catch (error) {
-      alert("Erro ao excluir conversa. Tente novamente.");
-      console.error("Error deleting window:", error);
+      toast.error("Erro ao excluir conversa. Tente novamente.");
     }
   }
 
@@ -175,7 +175,7 @@ export const ConversationsProvider = ({
       console.log("OpenAI response received:", response);
 
       if (!response) {
-        alert("Erro ao obter resposta do OpenAI. Tente novamente.");
+        toast.error("Erro ao obter resposta do OpenAI. Tente novamente.");
         throw new Error("No response from OpenAI");
       }
 
@@ -189,7 +189,7 @@ export const ConversationsProvider = ({
       console.log("AI response saved successfully");
     } catch (error) {
       console.error("Error communicating with OpenAI:", error);
-      alert("Erro ao gerar resposta da IA. Tente novamente.");
+      toast.error("Erro ao gerar resposta da IA. Tente novamente.");
       throw error;
     } finally {
       setLoadingAiResponse(false);
@@ -210,8 +210,7 @@ export const ConversationsProvider = ({
       const allWindows = await GetAllWindowsByEmail(userLogged.email);
       setWindows(allWindows);
     } catch (error) {
-      alert("Erro ao buscar chats. Tente novamente.");
-      console.error("Error fetching windows:", error);
+      toast.error("Erro ao buscar chats. Tente novamente.");
     }
   }
 
