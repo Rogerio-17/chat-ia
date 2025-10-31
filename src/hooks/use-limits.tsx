@@ -12,7 +12,7 @@ export function useLimits() {
   };
 
   // Verificar se pode enviar mensagem
-  const canSendMessage = (windowId: string) => {
+  const canSendMessage = (_windowId: string) => {
     if (isAdmin) return true;
 
     // Contar apenas mensagens do usuário na conversa atual
@@ -21,7 +21,7 @@ export function useLimits() {
   };
 
   // Obter número de mensagens restantes
-  const getRemainingMessages = (windowId: string) => {
+  const getRemainingMessages = (_windowId: string) => {
     if (isAdmin) return Infinity;
 
     const userMessages = conversations.filter((m) => m.type === "user");
