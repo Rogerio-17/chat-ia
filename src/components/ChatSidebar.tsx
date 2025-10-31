@@ -20,6 +20,7 @@ import { MdDelete } from "react-icons/md";
 
 import { useConversations } from "@/hooks/use-conversation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLimits } from "@/hooks/use-limits";
 import { formatDate } from "@/utils/format-date";
 import type { Window } from "@/server/firebase-services";
 import { auth } from "@/server/firebase-client";
@@ -56,6 +57,7 @@ export function ChatSidebar({
   const isMobile = useIsMobile();
   const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
   const { createWindow, userLogged, deleteWindow } = useConversations();
+  const { canCreateWindow, isAdmin } = useLimits();
 
   // Usar o estado externo se fornecido, caso contrário usar o interno
   const isModalOpen = externalIsModalOpen ?? internalIsModalOpen;
@@ -112,16 +114,32 @@ export function ChatSidebar({
     }
   };
 
+  const handleCreateNewChat = () => {
+    if (!canCreateWindow()) {
+      toast.warning(
+        "Você já atingiu o limite de 1 conversa com até 5 mensagens."
+      );
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
   const SidebarContent = () => (
     <div className="bg-gray-900 text-white h-full flex flex-col">
       {/* Header */}
       <div className="mt-8 md:mt-0 p-4">
         <Button
-          className="w-full bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 rounded-lg"
-          onClick={() => setIsModalOpen(true)}
+          className="w-full bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleCreateNewChat}
+          disabled={!canCreateWindow()}
         >
           + Nova Conversa
         </Button>
+        {!isAdmin && !canCreateWindow() && (
+          <p className="text-xs text-gray-400 mt-2 text-center">
+            Limite de 1 conversa atingido
+          </p>
+        )}
       </div>
 
       <Separator className="bg-gray-700" />
@@ -164,18 +182,20 @@ export function ChatSidebar({
                     {formatDate(chat.createdAt.toString())}
                   </p>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className={`p-1 h-6 w-6 text-gray-400 hover:text-red-400 hover:bg-red-500/10 ${
-                    isMobile
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100"
-                  } transition-opacity`}
-                  onClick={(e) => handleDeleteChat(chat.id, e)}
-                >
-                  <MdDelete size={12} />
-                </Button>
+                {isAdmin && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className={`p-1 h-6 w-6 text-gray-400 hover:text-red-400 hover:bg-red-500/10 ${
+                      isMobile
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    } transition-opacity`}
+                    onClick={(e) => handleDeleteChat(chat.id, e)}
+                  >
+                    <MdDelete size={12} />
+                  </Button>
+                )}
               </div>
             </div>
           ))

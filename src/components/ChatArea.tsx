@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useConversations } from "@/hooks/use-conversation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLimits } from "@/hooks/use-limits";
 import type { ConversationMessage } from "@/server/firebase-services";
 import { formatDate } from "@/utils/format-date";
 import { formatApiResponse } from "@/utils/formatApiResponse";
@@ -57,6 +58,7 @@ export function ChatArea({
     userLogged,
     imageUpload,
   } = useConversations();
+  const { canSendMessage, getRemainingMessages, isAdmin } = useLimits();
 
   // Função para fazer scroll para o final
   const scrollToBottom = () => {
@@ -98,6 +100,13 @@ export function ChatArea({
     if (!chatId) {
       setLoading(false);
       toast.error("Selecione uma conversa ou crie uma nova.");
+      return;
+    }
+
+    // Verificar limite de mensagens
+    if (!canSendMessage(chatId)) {
+      setLoading(false);
+      toast.warning("Você atingiu o limite de 5 mensagens nesta conversa.");
       return;
     }
 
@@ -152,6 +161,10 @@ export function ChatArea({
       handleSubmit(onSubmit)();
     }
   };
+
+  // Verificar limites
+  const remainingMessages = chatId ? getRemainingMessages(chatId) : 0;
+  const canSend = chatId ? canSendMessage(chatId) : false;
 
   if (!chatId || chatId === "new") {
     return (
@@ -460,6 +473,21 @@ export function ChatArea({
         }`}
       >
         <div className="max-w-3xl mx-auto">
+          {/* Aviso de limite */}
+          {!isAdmin && chatId && chatId !== "new" && (
+            <div className="mb-2 text-center">
+              <p className="text-xs text-gray-500">
+                {remainingMessages > 0
+                  ? `${remainingMessages} ${
+                      remainingMessages === 1
+                        ? "mensagem restante"
+                        : "mensagens restantes"
+                    }`
+                  : "Limite de mensagens atingido"}
+              </p>
+            </div>
+          )}
+
           {/* Preview da imagem */}
           {imagePreview && (
             <div
@@ -511,7 +539,9 @@ export function ChatArea({
               <Textarea
                 {...register("message")}
                 placeholder={
-                  selectedImage
+                  !canSend
+                    ? "Limite de mensagens atingido"
+                    : selectedImage
                     ? "Adicione uma descrição para a imagem..."
                     : "Envie uma mensagem para a IA"
                 }
@@ -520,6 +550,7 @@ export function ChatArea({
                   isMobile ? "rounded-lg text-base" : "rounded-xl"
                 } border-gray-300 focus:border-gray-400 focus:ring-0 pr-12`}
                 onKeyDown={handleKeyDown}
+                disabled={!canSend || loadingAiResponse || loading}
               />
               {/* Botão de anexo */}
               <Button
@@ -528,6 +559,7 @@ export function ChatArea({
                 variant="ghost"
                 className="absolute right-2 bottom-2 w-8 h-8 p-0 text-gray-400 hover:text-gray-600"
                 onClick={() => fileInputRef.current?.click()}
+                disabled={!canSend || loadingAiResponse || loading}
               >
                 <MdAttachFile size={16} />
               </Button>
@@ -539,6 +571,7 @@ export function ChatArea({
                 isMobile ? "rounded-lg" : "rounded-xl"
               }`}
               disabled={
+                !canSend ||
                 (!messageValue?.trim() && !selectedImage) ||
                 loadingAiResponse ||
                 loading
